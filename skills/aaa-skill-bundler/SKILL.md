@@ -18,10 +18,12 @@ This skill is an installation, organization, and optional localization helper. I
 - Generated bundle skills act as Chinese-friendly indexes and routers for related skills.
 - Generated bundle skills should usually contain only a `SKILL.md`.
 - Do not create scripts, assets, or extra files inside generated `aa-*` bundle skills unless the user explicitly asks.
-- **Ask the user before localization.** Before generating bundle content or translating descriptions, ask the user whether they want Chinese localization (汉化). Do not assume yes.
+- **Ask the user before localization.** Before generating bundle content or translating descriptions, ask the user whether they want Chinese localization. Do not assume yes.
 - Do not localize skill titles by default. Keep `name`, folder names, headings, `display_name`, and `displayName` in their original form unless the user explicitly asks to rename titles.
 - Default localization means translating descriptions and explanations: `SKILL.md` `description`, `metadata.short-description`, `agents/openai.yaml` `short_description`, and plugin `shortDescription` / `longDescription`.
 - Preserve technical terms such as GitHub, PR, CI, Chrome, Playwright, PDF, PowerPoint, TDD, KPI, URL, and API when that is clearer than translating them.
+- **Minimum bundle threshold.** A group must contain at least 3 skills to become a bundle. Groups with 1-2 skills are listed in the final report as unbundled with a reason.
+- **Incremental updates.** On backfill runs, compare against the last scan timestamp. Only process skill directories that are new or have been modified since the last run. Skip unchanged groups.
 
 ## When To Run
 
@@ -40,19 +42,54 @@ Do not run this skill just because a normal task might use a skill. For example,
 
 ## Workflow
 
+### Phase 1: Setup
+
 1. Determine whether this is post-install, backfill, localization, or mixed mode.
-2. **Ask the user whether they want Chinese localization (汉化).** Present a clear yes/no choice before any scanning or generation.
-   - If yes: generate bundles with Chinese descriptions (default behavior keeps titles English).
-   - If no: generate bundles with English descriptions only, no translation.
-3. Scan installed skills by finding `SKILL.md` files under the relevant skill roots.
-4. Read skill frontmatter first: `name`, `description`, and optional `metadata.short-description`.
-5. Read `agents/openai.yaml` and plugin `.codex-plugin/plugin.json` only when they exist or when localizing UI metadata.
-6. Group skills by source, install time, parent directory, repository, plugin cache, and functional similarity.
-7. Deduplicate obvious copies.
-8. Generate or update one `aa-*` bundle skill per meaningful group.
-9. Preserve user-edited Chinese copy when updating existing generated bundles or descriptions (only relevant when localization was enabled).
-10. Validate that all touched skill metadata still parses and that original titles were not localized unless explicitly requested.
-11. Report created, updated, skipped, ambiguous bundles, and validation results.
+2. **Ask the user which grouping strategy to use:**
+   - **Semantic grouping (Recommended)**: Analyze each skill's `description` and body keywords to group by functional domain. Skills like `tdd`, `test-driven-development`, `diagnose`, and `systematic-debugging` will be grouped under "Engineering Discipline" even if they came from different install sources.
+   - **Source-time grouping**: Group by install source (plugin package, repo, parent directory) and install time. This is the legacy behavior — same-source skills land in one bundle regardless of function.
+   - Present this as a clear two-option choice before scanning. If the user does not answer, default to semantic grouping.
+3. **Ask the user whether they want Chinese localization.** Present a clear yes/no choice. If the user does not answer within a reasonable time, default to no (English-only bundles).
+
+### Phase 2: Scan & Group
+
+4. Scan installed skills by finding `SKILL.md` files under the relevant skill roots.
+5. For incremental backfill runs, compare directory modification times against the last known scan timestamp. Only include new or modified skill directories. Skip directories that are unchanged and already belong to an existing bundle.
+6. Read skill frontmatter first: `name`, `description`, and optional `metadata.short-description`.
+7. Read `agents/openai.yaml` and plugin `.codex-plugin/plugin.json` only when they exist or when localizing UI metadata.
+8. Group skills using the chosen strategy. See `references/grouping-rules.md` for detailed rules per strategy.
+
+### Phase 3: Filter & Generate
+
+9. Deduplicate obvious copies.
+10. **Apply minimum bundle threshold.** Discard any group with fewer than 3 skills. These orphan skills are recorded in the final report as "Not bundled (group too small)".
+11. For each remaining group, **check for usage constraints**:
+    - Scan each child skill's SKILL.md body for prerequisite mentions (other skill names, required tools, required files or tokens).
+    - Document these constraints in the generated bundle entry under a dedicated "Constraint" or "Prerequisite" section. For example: "Requires `figma-create-new-file` to have been run first if no existing fileKey is available."
+12. Generate or update one `aa-*` bundle skill per meaningful group.
+13. Preserve user-edited Chinese copy when updating existing generated bundles or descriptions (only relevant when localization was enabled).
+
+### Phase 4: Validate & Health Check
+
+14. **Structural validation.** Validate that all touched skill metadata still parses and that original titles were not localized unless explicitly requested.
+15. **Bundle health scan.** After generating/updating bundles, scan all existing `aa-*` bundles to detect:
+    - **Orphan references**: child skills named in a bundle that no longer exist on disk.
+    - **Stale bundles**: bundles whose last child skill has been removed (empty bundle).
+    - **Duplicate coverage**: two or more bundles that reference the same child skill.
+    - **Constraint violations**: a child skill that declares a prerequisite, but the prerequisite is not present in the same bundle (or anywhere on disk).
+    Report these findings separately in the final output.
+16. **Save scan timestamp** for future incremental runs.
+
+### Phase 5: Report
+
+17. Report:
+    - which `aa-*` bundles were created or updated
+    - which original skills were included
+    - which groups were skipped and why (too small, already bundled, ambiguous source)
+    - which metadata description fields were localized (if localization was enabled)
+    - validation counts and any remaining issues
+    - health scan results: orphan refs, stale bundles, duplicates, constraint violations
+    - whether the user should restart Codex to pick up new skill entries
 
 ## Operating Modes
 
@@ -66,7 +103,7 @@ If an install-before snapshot exists in the conversation or workspace, compare i
 
 Use this when the user asks to organize skills installed earlier.
 
-Scan existing skills and create bundles for meaningful historical groups. Skip groups that already have `aa-*` bundles unless the user asks to refresh them.
+Scan existing skills and create bundles for meaningful historical groups. Skip groups that already have `aa-*` bundles unless the user asks to refresh them. On subsequent backfill runs, use the incremental scan timestamp to skip unchanged directories.
 
 ### Localization mode
 
@@ -102,9 +139,9 @@ After any bundle or localization update, run a fresh structural validation:
 
 Read only the references needed for the current task:
 
-- `references/grouping-rules.md`: use when deciding which skills belong in the same generated bundle.
+- `references/grouping-rules.md`: use when deciding which skills belong in the same generated bundle. Updated with semantic grouping rules and minimum threshold.
 - `references/chinese-copy-rules.md`: use when generating or updating Chinese descriptions, aliases, trigger phrases, or UI metadata.
-- `references/bundle-template.md`: use when writing a generated `aa-*` bundle `SKILL.md`.
+- `references/bundle-template.md`: use when writing a generated `aa-*` bundle `SKILL.md`. Updated with constraint/dependency section.
 
 ## Safety Rules
 
@@ -116,6 +153,7 @@ Read only the references needed for the current task:
 - Generated `aa-*` bundles may be created or updated.
 - Before overwriting an existing generated bundle, preserve user-edited Chinese text when possible.
 - If unsure whether content was user-edited, ask before overwriting.
+- Groups smaller than the minimum threshold (default 3) are never bundled. They are reported as unbundled in the final output.
 
 ## Final Response
 
@@ -123,7 +161,8 @@ After creating or updating bundles, report:
 
 - which `aa-*` bundles were created or updated
 - which original skills were included
+- which groups were skipped and why (too small, already bundled, ambiguous source)
 - which metadata description fields were localized, if any
-- which skills were skipped and why
 - validation counts and any remaining issues
+- health scan results: orphan refs, stale bundles, duplicate coverage, constraint violations
 - whether the user should restart Codex to pick up new skill entries

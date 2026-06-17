@@ -1,54 +1,69 @@
-# Bundle Template
+﻿# Bundle Template
 
 Use this template when generating an `aa-*` bundle skill.
 
-This file intentionally uses ASCII-only placeholders. Replace placeholders with natural Chinese when writing the generated bundle.
+This file intentionally uses ASCII-only placeholders. Replace placeholders with natural Chinese when writing the generated bundle (if localization is enabled). Otherwise, replace with English.
 
 ```markdown
 ---
 name: aa-example-skills
-description: Chinese-friendly bundle entry for a related group of installed Codex skills. Use when the user asks which skill in this bundle to use, asks to use this bundle, asks to see Chinese descriptions for this bundle, or wants help calling one of these bundled skills.
+description: <One-sentence domain description ending with "...or help choose which skill in this category to use.">
 ---
 
 # AA Example Skills
 
-[Chinese overview: explain that this is an automatically generated bundle entry. It does not replace the original skills; it helps users choose and call this group of skills more easily.]
+<Brief overview: explain that this is an auto-generated bundle entry. It does not replace the original skills; it helps users choose and call this group of skills more easily.>
 
-[Chinese note: UI titles and original skill names are kept unchanged by default. Chinese aliases and Chinese descriptions can be edited to match user or team habits. Future updates should preserve user edits when possible.]
+<Optional note when localization is enabled: UI titles and original skill names are kept unchanged by default. Chinese aliases and descriptions can be edited to match user or team habits. Future updates should preserve user edits when possible.>
 
-## [Chinese heading: Common Entry Points]
+## Common Entry Points
 
-- `child-skill-a` ([Chinese display name]): [One-sentence Chinese summary.]
-- `child-skill-b` ([Chinese display name]): [One-sentence Chinese summary.]
+- `<child-skill-a>` (<Chinese alias or English name>): <One-sentence summary of what it does.>
+- `<child-skill-b>` (<Chinese alias or English name>): <One-sentence summary of what it does.>
 
-## [Chinese heading: Skill List]
+## Usage Constraints
 
-### `child-skill-a` ([Chinese display name])
+<Only include this section if any child skill has a prerequisite, dependency, or required tool. If none, omit this section entirely.>
 
-- [Chinese label: Purpose]: [Chinese description.]
-- [Chinese label: Best for]: [Typical scenarios.]
-- [Chinese label: Trigger phrases]: [Chinese trigger phrases, English trigger phrases.]
-- [Chinese label: Source]: [Original skill path or source note.]
+Some skills in this bundle have prerequisites. Check before using:
 
-### `child-skill-b` ([Chinese display name])
+| Skill | Requires | Notes |
+|-------|----------|-------|
+| `<skill-name>` | `<prerequisite skill or tool>` | <Why it is needed and what happens without it.> |
 
-- [Chinese label: Purpose]: [Chinese description.]
-- [Chinese label: Best for]: [Typical scenarios.]
-- [Chinese label: Trigger phrases]: [Chinese trigger phrases, English trigger phrases.]
-- [Chinese label: Source]: [Original skill path or source note.]
+<Example entries:>
+| `figma-generate-design` | `figma-create-new-file` (or existing `fileKey`) | Without a fileKey, the import has no target file. |
+| `openai-api-troubleshooting` | `openai-platform-api-key` | Credentials must be configured before troubleshooting can proceed. |
+| `openai-platform-api-key` | OpenAI Platform account | A valid Platform account with billing is required. |
 
-## [Chinese heading: Routing Rules]
+## Skill List
 
-[Chinese routing text: choose the most relevant original skill from the list above based on the user's request. After choosing, follow the original skill's own instructions. Do not treat this bundle as a replacement for the original skill.]
+### `<child-skill-a>` (<Chinese alias or English name>)
 
-[Chinese fallback text: if no original skill matches, say this bundle does not contain a good match, then continue with normal Codex behavior.]
+- Purpose: <What the skill does.>
+- Best for: <One or two typical scenarios.>
+- Trigger phrases: <Chinese trigger phrases, English trigger phrases.>
+- Source: <Original skill path or source note.>
 
-## [Chinese heading: Maintenance Notes]
+### `<child-skill-b>` (<Chinese alias or English name>)
 
-- [Chinese note: users may manually edit Chinese aliases, Chinese descriptions, trigger phrases, and order.]
-- [Chinese note: updates should preserve user-edited Chinese content.]
-- [Chinese note: do not rename original skills or localize UI titles unless the user explicitly asks.]
-- [Chinese note: do not copy full original skill bodies into this bundle.]
+- Purpose: <What the skill does.>
+- Best for: <One or two typical scenarios.>
+- Trigger phrases: <Chinese trigger phrases, English trigger phrases.>
+- Source: <Original skill path or source note.>
+
+## Routing Rules
+
+<Routing text: choose the most relevant original skill from the list above based on the user's request. After choosing, follow the original skill's own instructions. Do not treat this bundle as a replacement for the original skill.>
+
+<Fallback text: if no original skill matches, say this bundle does not contain a good match, then continue with normal Codex behavior.>
+
+## Maintenance Notes
+
+- <Note: users may manually edit Chinese aliases, Chinese descriptions, trigger phrases, and order.>
+- <Note: updates should preserve user-edited Chinese content.>
+- <Note: do not rename original skills or localize UI titles unless the user explicitly asks.>
+- <Note: do not copy full original skill bodies into this bundle.>
 ```
 
 ## Notes
@@ -56,5 +71,7 @@ description: Chinese-friendly bundle entry for a related group of installed Code
 The generated bundle should usually contain only `SKILL.md`.
 
 Do not create `scripts/`, `references/`, or `assets/` inside generated `aa-*` bundle skills unless the user explicitly asks.
+
+When generating constraint/dependency information, only scan the child skill's SKILL.md body for prerequisite mentions. Do not add speculative constraints — every constraint must be traceable to a concrete statement in the original skill's documentation.
 
 If adding `agents/openai.yaml` for a generated bundle, keep `display_name` in the original/title style and put Chinese text in `short_description`.
