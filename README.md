@@ -2,25 +2,111 @@
 
 [![skills.sh](https://skills.sh/b/tomhuaijbig/aaa-skill-bundler)](https://skills.sh/tomhuaijbig/aaa-skill-bundler)
 
-一个用于整理 Codex 技能的技能包。它会把一批相关技能整理成更容易调用的 `aa-*` 技能包入口，并可选择把技能列表里的说明翻译成中文，但默认不改技能标题。
+一个用于整理 Codex / Claude Code 技能的技能包。它会把一批相关技能整理成更容易调用的 `aa-*` 技能包入口，并可选择把技能列表里的说明翻译成中文，默认不改技能标题。
 
-这个仓库里的核心技能是 [`aaa-skill-bundler`](./skills/aaa-skill-bundler/SKILL.md)。
+这个仓库包含两个核心技能：
+
+- **[aaa-skill-bundler](./skills/aaa-skill-bundler/SKILL.md)** — 自动整理技能并生成入口包
+- **[aaa-trial-hello](./skills/aaa-trial-hello/SKILL.md)** — 试用/演示技能，兼容 Codex 和 Claude Code（云 Code）
 
 ## Quickstart
 
-如果你的 Codex 支持从 GitHub 安装技能，可以直接让 Codex 安装这个仓库里的技能：
+### Codex 用户
 
 ```text
 安装 https://github.com/tomhuaijbig/aaa-skill-bundler 里的 aaa-skill-bundler 技能
 ```
 
-也可以手动复制：
+### Claude Code（云 Code）用户
+
+Claude Code 支持通过 `SKILL.md` 约定加载技能。你可以通过以下方式安装：
+
+**方式一：手动复制单个技能**
+
+```powershell
+Copy-Item -Recurse .\skills\aaa-skill-bundler "$env:USERPROFILE\.agents\skills\aaa-skill-bundler"
+Copy-Item -Recurse .\skills\aaa-trial-hello "$env:USERPROFILE\.agents\skills\aaa-trial-hello"
+```
+
+**方式二：克隆整个仓库**
+
+```powershell
+git clone https://github.com/tomhuaijbig/aaa-skill-bundler.git
+Copy-Item -Recurse .\aaa-skill-bundler\skills\aaa-skill-bundler "$env:USERPROFILE\.agents\skills\aaa-skill-bundler"
+Copy-Item -Recurse .\aaa-skill-bundler\skills\aaa-trial-hello "$env:USERPROFILE\.agents\skills\aaa-trial-hello"
+```
+
+安装后重启 Claude Code，技能列表会自动加载。
+
+### 手动安装（通用）
 
 ```powershell
 Copy-Item -Recurse .\skills\aaa-skill-bundler "$env:USERPROFILE\.codex\skills\aaa-skill-bundler"
+Copy-Item -Recurse .\skills\aaa-trial-hello "$env:USERPROFILE\.codex\skills\aaa-trial-hello"
 ```
 
-安装后重启或刷新 Codex，让技能列表重新加载。
+## Claude Code（云 Code）技能使用教程
+
+### 技能目录位置
+
+| 平台 | 技能目录 |
+|------|----------|
+| Codex | `~/.codex/skills/` |
+| Claude Code（云 Code） | `~/.agents/skills/` 或 `~/.codex/skills/` |
+
+### 技能文件结构
+
+每个技能都是一个文件夹，核心文件是 `SKILL.md`：
+
+```
+my-skill/
+  SKILL.md          # 必需：技能定义（name, description, 触发逻辑）
+  references/       # 可选：参考文档
+  scripts/          # 可选：可执行脚本
+```
+
+### `SKILL.md` 格式
+
+```markdown
+---
+name: my-skill-name
+description: 技能的中文或英文描述
+---
+
+# My Skill
+
+描述这个技能做什么、何时触发。
+
+## 触发词
+
+- 中文触发短语
+- English trigger phrase
+```
+
+Claude Code 会读取 `name` 和 `description` 字段以及正文内容来匹配用户请求。
+
+### 验证技能是否安装成功
+
+使用 `aaa-trial-hello` 技能测试：
+
+```text
+试用技能
+```
+
+或
+
+```text
+trial skill
+```
+
+如果能收到技能结构的回复，说明安装成功。
+
+### Claude Code 注意事项
+
+- `disable-model-invocation` 字段被忽略（Codex 专属）
+- `agents/openai.yaml` UI 元数据不会渲染
+- 技能正文中的触发词（"触发词" 或 "Trigger Phrases"）可帮助 Claude Code 识别是否调用
+- 安装新技能后需重启 Claude Code
 
 ## Why This Skill Exists
 
@@ -77,7 +163,8 @@ Copy-Item -Recurse .\skills\aaa-skill-bundler "$env:USERPROFILE\.codex\skills\aa
 
 ## Reference
 
-- **[aaa-skill-bundler](./skills/aaa-skill-bundler/SKILL.md)** - 自动整理已安装的 Codex 技能，生成更容易调用的技能包入口，可选择是否汉化说明。
+- **[aaa-skill-bundler](./skills/aaa-skill-bundler/SKILL.md)** - 自动整理已安装的技能，生成更容易调用的技能包入口，可选择是否汉化说明。
+- **[aaa-trial-hello](./skills/aaa-trial-hello/SKILL.md)** - 试用/演示技能，兼容 Codex 和 Claude Code。
 - **[bundle-template](./skills/aaa-skill-bundler/references/bundle-template.md)** - 生成 `aa-*` 技能包时使用的结构模板。
 - **[chinese-copy-rules](./skills/aaa-skill-bundler/references/chinese-copy-rules.md)** - 中文说明、别名、触发短语和 UI 元数据的写法规则。
 - **[grouping-rules](./skills/aaa-skill-bundler/references/grouping-rules.md)** - 判断哪些技能应该被打包到同一个入口里的分组规则。
@@ -94,4 +181,3 @@ Copy-Item -Recurse .\skills\aaa-skill-bundler "$env:USERPROFILE\.codex\skills\aa
 ## License
 
 MIT
-
