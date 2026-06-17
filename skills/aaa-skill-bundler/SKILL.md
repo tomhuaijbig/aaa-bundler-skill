@@ -1,23 +1,24 @@
+﻿---
+name: aaa-skill-bundler
+description: 自动整理已安装的 Codex 技能，生成更容易调用的 aa-* 技能包入口，运行前会询问你是否需要汉化。仅用于安装技能后打包、整理历史技能、翻译说明或维护技能列表。
 ---
-name: skill-bundler
-description: 自动整理已安装的 Codex 技能，生成更容易调用的技能包入口，并汉化技能说明但默认不汉化标题。仅用于安装技能后打包、整理历史技能、翻译说明或维护技能列表。
----
 
-# Skill Bundler
+# AAA Skill Bundler
 
-Create lightweight `aa-*` bundle entry skills and maintain Chinese-friendly skill descriptions so installed skills are easier to discover and call.
+Create lightweight `aa-*` / `aaa-*` bundle entry skills and optionally localize skill descriptions to Chinese, so installed skills are easier to discover and call.
 
-This skill is an installation, organization, and localization helper. It should run after skills are installed, when the user asks to organize skills installed earlier, or when the user asks to translate/localize skill descriptions. It must not replace, move, rename, or merge the original skills.
+This skill is an installation, organization, and optional localization helper. It should run after skills are installed, when the user asks to organize skills installed earlier, or when the user asks to translate/localize skill descriptions. It must not replace, move, rename, or merge the original skills.
 
 ## Core Rules
 
-- `skill-bundler` is the organizer. It should not be named with the `aa-` prefix.
+- `aaa-skill-bundler` is the organizer. It uses the `aaa-` prefix to sort at the very top of skill lists.
 - Generated bundle skills use the `aa-` prefix so they sort near the top of skill lists.
 - Users do not need to say "AA"; the prefix is an implementation detail.
 - Original skills keep their own trigger logic and behavior.
 - Generated bundle skills act as Chinese-friendly indexes and routers for related skills.
 - Generated bundle skills should usually contain only a `SKILL.md`.
 - Do not create scripts, assets, or extra files inside generated `aa-*` bundle skills unless the user explicitly asks.
+- **Ask the user before localization.** Before generating bundle content or translating descriptions, ask the user whether they want Chinese localization (汉化). Do not assume yes.
 - Do not localize skill titles by default. Keep `name`, folder names, headings, `display_name`, and `displayName` in their original form unless the user explicitly asks to rename titles.
 - Default localization means translating descriptions and explanations: `SKILL.md` `description`, `metadata.short-description`, `agents/openai.yaml` `short_description`, and plugin `shortDescription` / `longDescription`.
 - Preserve technical terms such as GitHub, PR, CI, Chrome, Playwright, PDF, PowerPoint, TDD, KPI, URL, and API when that is clearer than translating them.
@@ -40,15 +41,18 @@ Do not run this skill just because a normal task might use a skill. For example,
 ## Workflow
 
 1. Determine whether this is post-install, backfill, localization, or mixed mode.
-2. Scan installed skills by finding `SKILL.md` files under the relevant skill roots.
-3. Read skill frontmatter first: `name`, `description`, and optional `metadata.short-description`.
-4. Read `agents/openai.yaml` and plugin `.codex-plugin/plugin.json` only when they exist or when localizing UI metadata.
-5. Group skills by source, install time, parent directory, repository, plugin cache, and functional similarity.
-6. Deduplicate obvious copies.
-7. Generate or update one `aa-*` bundle skill per meaningful group.
-8. Preserve user-edited Chinese copy when updating existing generated bundles or descriptions.
-9. Validate that all touched skill metadata still parses and that original titles were not localized unless explicitly requested.
-10. Report created, updated, skipped, ambiguous bundles, and validation results.
+2. **Ask the user whether they want Chinese localization (汉化).** Present a clear yes/no choice before any scanning or generation.
+   - If yes: generate bundles with Chinese descriptions (default behavior keeps titles English).
+   - If no: generate bundles with English descriptions only, no translation.
+3. Scan installed skills by finding `SKILL.md` files under the relevant skill roots.
+4. Read skill frontmatter first: `name`, `description`, and optional `metadata.short-description`.
+5. Read `agents/openai.yaml` and plugin `.codex-plugin/plugin.json` only when they exist or when localizing UI metadata.
+6. Group skills by source, install time, parent directory, repository, plugin cache, and functional similarity.
+7. Deduplicate obvious copies.
+8. Generate or update one `aa-*` bundle skill per meaningful group.
+9. Preserve user-edited Chinese copy when updating existing generated bundles or descriptions (only relevant when localization was enabled).
+10. Validate that all touched skill metadata still parses and that original titles were not localized unless explicitly requested.
+11. Report created, updated, skipped, ambiguous bundles, and validation results.
 
 ## Operating Modes
 
@@ -66,7 +70,7 @@ Scan existing skills and create bundles for meaningful historical groups. Skip g
 
 ### Localization mode
 
-Use this when the user asks to translate, localize, or Chinese-ify skill entries.
+Use this when the user explicitly asks to translate, localize, or Chinese-ify skill entries. This mode implies the user already wants localization, so skip the ask step.
 
 Default behavior:
 

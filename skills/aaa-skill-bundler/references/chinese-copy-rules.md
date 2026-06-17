@@ -1,4 +1,4 @@
-# Chinese Copy Rules
+﻿# Chinese Copy Rules
 
 Use these rules when generating Chinese descriptions, aliases, trigger phrases, and UI metadata for bundled skills.
 
@@ -15,6 +15,16 @@ user-edited Chinese content > existing generated Chinese content > newly generat
 Do not overwrite user edits unless the user explicitly asks to regenerate everything.
 
 If unsure whether text was user-edited, preserve it or ask before overwriting.
+
+## Interactive Localization Preference
+
+Before generating bundle content, the caller (`aaa-skill-bundler`) will ask the user whether they want Chinese localization.
+
+- If the user says yes: apply the rules below (translate descriptions, keep titles).
+- If the user says no: skip all Chinese translation, use English descriptions throughout.
+- If the user explicitly asks for localization mode (e.g. "汉化技能说明"): skip the ask, localization is implied.
+
+This is controlled by the skill workflow, not by this reference file. This file only defines HOW to write Chinese copy once the decision to localize has been made.
 
 ## Title Policy
 
