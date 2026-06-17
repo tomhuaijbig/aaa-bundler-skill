@@ -1,6 +1,6 @@
 ﻿# AAA Skill Bundler
 
-[![skills.sh](https://skills.sh/b/tomhuaijbig/codex-skill-bundler)](https://skills.sh/tomhuaijbig/codex-skill-bundler)
+[![skills.sh](https://skills.sh/b/tomhuaijbig/aaa-skill-bundler)](https://skills.sh/tomhuaijbig/aaa-skill-bundler)
 
 一个用于整理 Codex 技能的技能包。它会把一批相关技能整理成更容易调用的 `aa-*` 技能包入口，并可选择把技能列表里的说明翻译成中文，但默认不改技能标题。
 
@@ -11,7 +11,7 @@
 如果你的 Codex 支持从 GitHub 安装技能，可以直接让 Codex 安装这个仓库里的技能：
 
 ```text
-安装 https://github.com/tomhuaijbig/codex-skill-bundler 里的 aaa-skill-bundler 技能
+安装 https://github.com/tomhuaijbig/aaa-skill-bundler 里的 aaa-skill-bundler 技能
 ```
 
 也可以手动复制：
@@ -94,3 +94,4 @@ Copy-Item -Recurse .\skills\aaa-skill-bundler "$env:USERPROFILE\.codex\skills\aa
 ## License
 
 MIT
+
