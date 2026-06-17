@@ -1,4 +1,4 @@
-﻿# AAA Skill Bundler
+﻿# AAA Bundler Skill
 
 [![skills.sh](https://skills.sh/b/tomhuaijbig/aa-bundler-skill)](https://skills.sh/tomhuaijbig/aa-bundler-skill)
 
